@@ -1,12 +1,14 @@
 let speech = new SpeechSynthesisUtterance();
-speech.lang = "en";
+speech.lang = "th";
 
 let voices = [];
 window.speechSynthesis.onvoiceschanged = () => {
   voices = window.speechSynthesis.getVoices();
   speech.voice = voices[0];
   let voiceSelect = document.querySelector("#voices");
-  voices.forEach((voice, i) => (voiceSelect.options[i] = new Option(voice.name, i)));
+  voices.forEach(
+    (voice, i) => (voiceSelect.options[i] = new Option(voice.name, i))
+  );
 };
 
 document.querySelector("#rate").addEventListener("input", () => {
@@ -31,19 +33,44 @@ document.querySelector("#voices").addEventListener("change", () => {
   speech.voice = voices[document.querySelector("#voices").value];
 });
 
-document.querySelector("#start").addEventListener("click", () => {
+document.querySelector("#start-tts").addEventListener("click", () => {
   speech.text = document.querySelector("textarea").value;
   window.speechSynthesis.speak(speech);
 });
 
-document.querySelector("#pause").addEventListener("click", () => {
+document.querySelector("#pause-tts").addEventListener("click", () => {
   window.speechSynthesis.pause();
 });
 
-document.querySelector("#resume").addEventListener("click", () => {
+document.querySelector("#resume-tts").addEventListener("click", () => {
   window.speechSynthesis.resume();
 });
 
-document.querySelector("#cancel").addEventListener("click", () => {
+document.querySelector("#cancel-tts").addEventListener("click", () => {
   window.speechSynthesis.cancel();
 });
+
+function populateVoiceList() {
+  voices = speechSynthesis
+    .getVoices()
+    .filter((voice) => voice.lang.includes("th-TH")); // Only Thai voices
+  // Thai and US English voices
+  // .filter(voice) => voice.lang.includes("th-TH") || voice.lang.includes("en-US")
+  // );
+
+  if (voices.length === 0) {
+    console.log("No Thai voices found");
+    return;
+  }
+
+  const voiceSelect = document.querySelector("#voices");
+  voiceSelect.innerHTML = "";
+
+  voices.forEach((voice, index) => {
+    const option = document.createElement("option");
+    option.textContent = `${voice.name} (${voice.lang})`;
+    option.value = index;
+    voiceSelect.appendChild(option);
+  });
+}
+speechSynthesis.addEventListener("voiceschanged", populateVoiceList);
